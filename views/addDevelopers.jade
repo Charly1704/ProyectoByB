@@ -22,11 +22,15 @@ block content
           thead
             tr
               th Nombre completo 
+              th Habilidades
               th(class="td-actions") Agregar
           each user in users
             tbody
               tr
                 td #{user.nombreCompleto}
+                td
+                  each habilidad in user.habilidades
+                    span(class="label label-info") #{habilidad.habilidad} #{habilidad.grado}
                 td(class="td-actions")
                   form(action="/agregarDesarrolador/#{user._id}/#{idProy}", method="POST")
                     input(type="submit" class="btn btn-primary" value="agregar" name="agregarDes")

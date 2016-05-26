@@ -511,7 +511,14 @@ app.post("/api/crearSprint/:idProy",function(req, res) {
 
 app.get("/backlog/:idProy",user.can("anonymousUser"),function(req,res){
   console.log("Entro al backlog")
-var hayProductOwner;
+  var cierreProyecto;
+  var hayProductOwner;
+   Proyecto.findOne({ _id:req.params.idProy }, function (err, estado) {
+   if (err) return handleError(err);
+   console.log("El estado de su proyecto es: ");
+   console.log(estado.estadoProyecto);
+   cierreProyecto = estado.estadoProyecto;
+ })
   Proyecto.count({$and:[{_id:req.params.idProy},{productOwner:req.session.user}]},function(error,count){
      if (count == 0) {
           hayProductOwner = false
@@ -534,7 +541,8 @@ var data = [];
       }
     res.render("backlog",{
       idProy:req.params.idProy,
-      hayProductOwner:hayProductOwner
+      hayProductOwner:hayProductOwner,
+      cierreProyecto:cierreProyecto
     });
 });
 });
@@ -674,6 +682,17 @@ app.post("/api/backlogRejected",function(req, res) {
   })  
 
 })
+app.post("/cerrarProyecto/:idProy",function(req,res){
+   console.log(req.params.idProy);
+   Proyecto.findOneAndUpdate({_id:req.params.idProy},{estadoProyecto:true},function(err,updated){
+     if(err) console.log(String(err));
+     console.log("El proyecto fue cerrado");
+     console.log(updated);
+       res.redirect("/dashboard");
+  })
+ 
+ 
+ });
 app.post("/api/backlog/:idProy",function(req,res){
   console.log(req.params.idProy);
   /*res.render("backlog",{
@@ -785,7 +804,8 @@ app.post("/dashboard",function(req,res){
     fechaSolicitud:req.body.fechaSolicitud,
     fechaArranque:req.body.fechaArranque,
     descripcion:req.body.descripcion,
-    proyectManager:req.session.user
+    proyectManager:req.session.user,
+    estadoProyecto: false
   });
   proyecto.save().then(function(proj){
     console.log(proj._id);
